@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>打个螺丝</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        .game-area {
+            position: relative;
+            width: 350px;
+            height: 500px;
+            background: #fff;
+            border: 2px solid #333;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .screw {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+        .screw:active {
+            transform: scale(0.9);
+        }
+        .red { background: #ff4444; }
+        .blue { background: #33b5e5; }
+        .purple { background: #aa66cc; }
+        .orange { background: #ff9800; }
+        .boxes {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .box {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #333;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            background: #f9f9f9;
+        }
+        .temp-slots {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .slot {
+            width: 35px;
+            height: 35px;
+            border: 1px dashed #666;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>打个螺丝</h1>
+    <div class="boxes">
+        <div class="box red" id="redBox"></div>
+        <div class="box blue" id="blueBox"></div>
+        <div class="box purple" id="purpleBox"></div>
+        <div class="box orange" id="orangeBox"></div>
+    </div>
+    <div class="temp-slots" id="tempSlots"></div>
+    <div class="game-area" id="gameArea"></div>
+
+    <script>
+        const colors = ['red', 'blue', 'purple', 'orange'];
+        const tempSlots = [];
+        const maxTempSlots = 5;
+
+        // 初始化游戏区域
+        function initGame() {
+            const gameArea = document.getElementById('gameArea');
+            // 生成螺丝
+            for (let i = 0; i < 15; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const screw = document.createElement('div');
+                screw.className = `screw ${color}`;
+                screw.textContent = '+';
+                screw.style.left = `${Math.random() * 300 + 25}px`;
+                screw.style.top = `${Math.random() * 450 + 25}px`;
+                screw.onclick = () => handleScrewClick(color, screw);
+                gameArea.appendChild(screw);
+            }
+            // 初始化临时栏位
+            const tempSlotsContainer = document.getElementById('tempSlots');
+            for (let i = 0; i < maxTempSlots; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                tempSlotsContainer.appendChild(slot);
+                tempSlots.push(null);
+            }
+        }
+
+        function handleScrewClick(color, screwElement) {
+            // 找到第一个空的临时栏位
+            const emptySlotIndex = tempSlots.indexOf(null);
+            if (emptySlotIndex === -1) {
+                alert('临时栏位已满，游戏失败！');
+                return;
+            }
+
+            // 将螺丝放入临时栏位
+            tempSlots[emptySlotIndex] = color;
+            const slotElements = document.querySelectorAll('.slot');
+            slotElements[emptySlotIndex].className = `slot ${color}`;
+            screwElement.remove();
+
+            // 检查是否可以消除
+            checkForMatch(color);
+        }
+
+        function checkForMatch(color) {
+            const box = document.getElementById(`${color}Box`);
+            const count = box.children.length + 1; // 加上刚放入的这颗
+
+            if (count >= 3) {
+                // 消除逻辑：清空盒子
+                while (box.firstChild) {
+                    box.removeChild(box.firstChild);
+                }
+                // 从临时栏位中移除对应颜色的螺丝
+                for (let i = 0; i < tempSlots.length; i++) {
+                    if (tempSlots[i] === color) {
+                        tempSlots[i] = null;
+                        const slotElements = document.querySelectorAll('.slot');
+                        slotElements[i].className = 'slot';
+                    }
+                }
+                alert(`${color.toUpperCase()} 螺丝消除成功！`);
+            } else {
+                // 将螺丝从临时栏位移动到盒子
+                const screwInBox = document.createElement('div');
+                screwInBox.className = `screw ${color}`;
+                screwInBox.textContent = '+';
+                box.appendChild(screwInBox);
+                // 清空临时栏位
+                for (let i = 0; i < tempSlots.length; i++) {
+                    if (tempSlots[i] === color) {
+                        tempSlots[i] = null;
+                        const slotElements = document.querySelectorAll('.slot');
+                        slotElements[i].className = 'slot';
+                        break; // 只移动一颗
+                    }
+                }
+            }
+
+            // 检查是否通关
+            if (document.getElementById('gameArea').children.length === 0) {
+                alert('恭喜你，通关成功！');
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
