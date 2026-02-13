@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<title>我的螺丝按钮</title>
+	<style>
+		.screw-btn {
+			width: 40px;
+			height: 40px;
+			background: #ff4444;
+			border-radius: 50%;
+			color: white;
+			font-size: 30px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer
+		}
+		.screw-btn:active {
+			transform: scale(0.9);
+		}
+	</style>
+</head>
+<body>
+	<div class="screw-btn" onclick="alert('螺丝被拧了！')">×</div>
+</body>
+</html>
